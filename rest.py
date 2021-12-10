@@ -55,18 +55,19 @@ def get_by_name(name):
 	cursor.close()
 	return json.dumps(results_list)
 
-@app.route('/post')
+@app.route('/signup', methods= ['POST'])
 def index():
-	Id, name, age, gender, race = request.args['id'], request.args['name'], request.args['age'], request.args['gender'], request.args['race']
+	#Id, name, age, gender, race = request.args['id'], request.args['name'], request.args['age'], request.args['gender'], request.args['race']
+	body = request.get_json( )
+	doc_id, email, password, name, age, gender, race = body['doctor'],body['email'],body['password'],body['name'],body['age'],body['gender'],body['race']
 	cnx = make_connection()
-	cursor = cnx.cursor()
-	table = request.args.get('table')
-	query = f'''insert into {table} values (\"{Id}\",\"{name}\",\"{age}\",\"{gender}\",\"{race}\")'''
+	cursor = cnx.cursor()	
+	query = f'''insert into cpop_patients values (\"0\",\"{doc_id}\","{name}\",\"{age}\",\"{gender}\",\"{race}\")'''
 	cursor.execute(query)
 	cnx.commit()
 	cursor.close()
-	get_by_name(name)
-
+	return "hello"
+	
 
 
 app.run(host="0.0.0.0",port=8080)
