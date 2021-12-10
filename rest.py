@@ -23,6 +23,10 @@ def make_connection():
 app = Flask(__name__)
 
 table = 'cpop_users'
+@app.route('/')
+def home():
+	return 'hello world'
+
 
 @app.route('/list')
 def list():
@@ -65,6 +69,6 @@ def index():
 
 
 
-app.run(port=8080)
+app.run(host="0.0.0.0",port=8080)
 #app.run(host="localhost", port=8000, debug=True)
 
