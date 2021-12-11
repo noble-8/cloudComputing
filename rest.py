@@ -65,7 +65,8 @@ def index():
 		cnx = make_connection()
 		cursor = cnx.cursor();
 		#INSERT INTO cpop_auth VALUES ("uname","password",role_id,"token");
-		token = hashlib.md5(b'{password}').hexdigest();
+		token = hashlib.sha1('{password}'.encode('utf-8')).hexdigest()
+		#hashlib.md5(b'{password}').hexdigest();
 		query = f''' INSERT INTO cpop_auth VALUES ("{email}","{password}",2,"{token}")''';
 		cursor.execute(query)
 		cnx.commit()
