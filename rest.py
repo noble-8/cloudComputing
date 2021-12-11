@@ -1,4 +1,5 @@
 import json
+import hashlib
 from flask import Flask
 from flask import request
 from flask import send_file
@@ -55,16 +56,23 @@ def get_by_name(name):
 	cursor.close()
 	return json.dumps(results_list)
 
-@app.route('/signup', methods= ['POST'])
+@app.route('/signupPatient', methods= ['POST'])
 def index():
 	#Id, name, age, gender, race = request.args['id'], request.args['name'], request.args['age'], request.args['gender'], request.args['race']
 	body = request.get_json( )
 	email, password, name, age, gender, race , doc_id , start_date , end_date = body['email'],body['password'],body['name'],body['age'],body['gender'],body['race'],body['doctor'] ,body['start_date'],body['end_date']
-	cnx = make_connection()
-	cursor = cnx.cursor();
-	#INSERT INTO cpop_patients VALUES (0,1,'2020-12-10 12:12:12','4712-12-12 00:00:00', 'Abhishek Verule', 25,'M', 1, 'abc@xyz.com');
-	query = f'''INSERT INTO cpop_patients VALUES (0,1,"{start_date}",'{end_date}', '{name}',{age} ,'{gender}',{race} , '{email}');''';
 	try:
+		cnx = make_connection()
+		cursor = cnx.cursor();
+		#INSERT INTO cpop_auth VALUES ("uname","password",role_id,"token");
+		token = hashlib.md5(b'{password}').hexdigest();
+		query = f''' INSERT INTO cpop_auth VALUES ("{email}","{password}",2,"{token}")''';
+		cursor.execute(query)
+		cnx.commit()
+		cursor.close()
+		cursor = cnx.cursor();
+		#INSERT INTO cpop_patients VALUES (0,1,'2020-12-10 12:12:12','4712-12-12 00:00:00', 'Abhishek Verule', 25,'M', 1, 'abc@xyz.com');
+		query = f'''INSERT INTO cpop_patients VALUES (0,1,"{start_date}",'{end_date}', '{name}',{age} ,'{gender}',{race} , '{email}');''';
 		cursor.execute(query)
 		cnx.commit()
 		cursor.close()
