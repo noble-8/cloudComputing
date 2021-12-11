@@ -83,6 +83,24 @@ def index():
 		return "check syntax"
 	
 
+def genemails():
+    cnx = make_connection()
+    cursor = cnx.cursor()
+    def random_char(char_num):
+        return ''.join(random.choice(string.ascii_letters) for _ in range(char_num))
+    for i in range(2):
+        email = random_char(7)+"@hospital.com"
+        password_length = random.randint(6,12)
+        password = secrets.token_urlsafe(password_length)
+        roleid = 1
+        token = hashlib.sha1(password.encode('utf-8')).hexdigest()
+        print(password, token)
+        query = f'''INSERT INTO cpop_auth VALUES ("{email}","{password}","{roleid}","{token}");''';
+        cursor.execute(query)
+        cnx.commit()
+    cursor.close()
+    return
+
 
 app.run(host="0.0.0.0",port=8080)
 #app.run(host="localhost", port=8000, debug=True)
