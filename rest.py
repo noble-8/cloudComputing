@@ -69,8 +69,6 @@ def index():
 		#hashlib.md5(b'{password}').hexdigest();
 		query = f''' INSERT INTO cpop_auth VALUES ("{email}","{password}",2,"{token}")''';
 		cursor.execute(query)
-		cnx.commit()
-		cursor.close()
 		cursor = cnx.cursor();
 		#INSERT INTO cpop_patients VALUES (0,1,'2020-12-10 12:12:12','4712-12-12 00:00:00', 'Abhishek Verule', 25,'M', 1, 'abc@xyz.com');
 		query = f'''INSERT INTO cpop_patients VALUES (0,1,"{start_date}",'{end_date}', '{name}',{age} ,'{gender}',{race} , '{email}');''';
@@ -82,6 +80,30 @@ def index():
 		print(e);
 		return "check syntax"
 	
+@app.route('/signupDoctor', methods= ['POST'])
+def signupDoc():
+	#Id, name, age, gender, race = request.args['id'], request.args['name'], request.args['age'], request.args['gender'], request.args['race']
+	body = request.get_json( )
+	email, password, name = body['email'],body['password'],body['name']
+	try:
+		cnx = make_connection()
+		cursor = cnx.cursor();
+		#INSERT INTO cpop_auth VALUES ("uname","password",role_id,"token");
+		token = hashlib.sha1('{password}'.encode('utf-8')).hexdigest()
+		#hashlib.md5(b'{password}').hexdigest();
+		query = f''' INSERT INTO cpop_auth VALUES ("{email}","{password}",1,"{token}")''';
+		cursor.execute(query)
+		cursor = cnx.cursor();
+		#insert into cpop_doctors (doc_id,name, email) values (2,"hannibal",'hbgKcKK@hospital.com');
+		query = f'''INSERT INTO cpop_doctors VALUES (0,'{name}','{email}');''';
+		print(query);
+		cursor.execute(query)
+		cnx.commit()
+		cursor.close()
+		return "{msg:entered successfully}"
+	except  Exception as e: 
+		print(e);
+		return "check syntax"
 
 def genemails():
     cnx = make_connection()
