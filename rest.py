@@ -24,7 +24,7 @@ def make_connection():
 
 app = Flask(__name__)
 
-table = 'cpop_users'
+table = 'cpop_auth'
 @app.route('/')
 def home():
 	return "hello world" 
