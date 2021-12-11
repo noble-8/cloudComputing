@@ -27,7 +27,7 @@ app = Flask(__name__)
 table = 'cpop_users'
 @app.route('/')
 def home():
-	return send_file("figure.png", mimetype='image/gif')
+	return "hello world" 
 
 @app.route('/list')
 def list():
@@ -73,9 +73,15 @@ def index():
 		#INSERT INTO cpop_patients VALUES (0,1,'2020-12-10 12:12:12','4712-12-12 00:00:00', 'Abhishek Verule', 25,'M', 1, 'abc@xyz.com');
 		query = f'''INSERT INTO cpop_patients VALUES (0,1,"{start_date}",'{end_date}', '{name}',{age} ,'{gender}',{race} , '{email}');''';
 		cursor.execute(query)
+		query = f'''select pat_id from cpop_patients where email="{email}"'''
+		cursor.execute(query)
+		results_list = []
+		for result in cursor:
+			results_list.append(result)
+		cursor.close()
 		cnx.commit()
 		cursor.close()
-		return "{msg:entered successfully}"
+		return json.dumps(results_list)
 	except  Exception as e: 
 		print(e);
 		return "check syntax"
@@ -96,7 +102,32 @@ def signupDoc():
 		cursor = cnx.cursor();
 		#insert into cpop_doctors (doc_id,name, email) values (2,"hannibal",'hbgKcKK@hospital.com');
 		query = f'''INSERT INTO cpop_doctors VALUES (0,'{name}','{email}');''';
-		print(query);
+		cursor.execute(query)
+		query = f'''select doc_id from cpop_doctors where email="{email}"'''
+		cursor.execute(query)
+		results_list = []
+		for result in cursor:
+			results_list.append(result)
+		cursor.close()
+		cnx.commit()
+		cursor.close()
+		return json.dumps(results_list)
+	except  Exception as e: 
+		print(e);
+		return "check syntax"
+
+@app.route('/patInfo', methods= ['POST'])
+def patInfo():
+	#Id, name, age, gender, race = request.args['id'], request.args['name'], request.args['age'], request.args['gender'], request.args['race']
+	body = request.get_json( )
+	pat_id , education , cigarettes , alcohol_id , asthma , diabetes, allergic_rhinitis , aspirin_sensitivity , depression= body['pat_id'],body['education'],body['cigarettes'],body['alcohol_id'],body['asthma'],body['diabetes'],body['allergic_rhinitis'],body['aspirin_sensitivity'],body['depression']
+
+	try:
+		cnx = make_connection()
+		cursor = cnx.cursor();
+		#insert into cpop_pat_info values(1, "Bachelor's Degree", 4, 2, 1, 0, 1, 0, 1);
+		query = f''' INSERT INTO cpop_pat_info VALUES ({pat_id}, "{education}",{cigarettes},{alcohol_id},{asthma},{diabetes},{allergic_rhinitis},{aspirin_sensitivity},{depression})''';
+		print(query)
 		cursor.execute(query)
 		cnx.commit()
 		cursor.close()
@@ -104,6 +135,7 @@ def signupDoc():
 	except  Exception as e: 
 		print(e);
 		return "check syntax"
+
 
 def genemails():
     cnx = make_connection()
