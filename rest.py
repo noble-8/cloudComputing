@@ -44,38 +44,55 @@ def get_by_name(name):
         print(results_list)
     cursor.close()
     return json.dumps(results_list)
-@app.route('/createOperation', methods= ['POST'])
-def createOperation():
-        body = request.get_json()
-        doc_id , pat_id , operation_date = body['doc_id'],body['pat_id'],body['operation_date']
-        op = datetime.strptime(operation_date, '%Y-%m-%d %H:%M:%S')
-        pre_op = op + timedelta(days=-1)
-        post_op = op + timedelta(days=1)
-        op_3= op + timedelta(days=90)
-        op_6= op + timedelta(days=180)
-        try:
-                cnx = make_connection()
-                cursor = cnx.cursor();
-                query = f''' INSERT INTO cpop_operations VALUES (0,{doc_id},{pat_id},"{operation_date}")''';
-                cursor.execute(query)
-                query = f'''select operation_id from cpop_operations where doc_id="{doc_id}" and pat_id={pat_id} and operation_date="{operation_date}"'''
-                cursor.execute(query)
-                results_list = []
-                for result in cursor:
-                    results_list.append(result)
-                op_id = (results_list[-1])[0]
-                query = f''' insert into cpop_survey_dates values (0,{op_id},{pat_id},"{pre_op}","{post_op}","{op_3}","{op_6}") ;'''
-                cursor.execute(query)
-                query = f'''select csd_id from  cpop_survey_dates'''
-                cursor.execute(query)
-                results_list = []
-                for result in cursor:
-                    results_list.append(result)
-                cnx.commit()
-                cursor.close()
-                return str(results_list[-1][0])
-        except  Exception as e:
-                return e
+
+@app.route('/login', methods= ['POST'])
+def login():
+    #Id, name, age, gender, race = request.args['id'], request.args['name'], request.args['age'], request.args['gender'], request.args['race']
+    body = request.get_json( )
+    email, password = body['email'],body['password']
+    try:
+        cnx = make_connection()
+        cursor = cnx.cursor();
+        #select token from cpop_auth where username="akash@email.com" and password="9baf519e49b4a8163698b706b5d4ed31"
+        query = f''' select token from cpop_auth where username="{email}" and password="{password}" '''
+        cursor.execute(query)
+        results_list = []
+        for result in cursor:
+            results_list.append(result)
+        cursor.close()
+        cnx.commit()
+        cursor.close()
+        if(len(results_list)==0):
+           return "invalid username Password"
+        return str(results_list[-1][0])
+    except  Exception as e: 
+        print(e);
+        return "check syntax"
+ 
+@app.route('/getRole', methods= ['POST'])
+def role():
+    #Id, name, age, gender, race = request.args['id'], request.args['name'], request.args['age'], request.args['gender'], request.args['race']
+    body = request.get_json( )
+    token = body['token']
+    try:
+        cnx = make_connection()
+        cursor = cnx.cursor();
+        #select token from cpop_auth where username="akash@email.com" and password="9baf519e49b4a8163698b706b5d4ed31"
+        query = f''' select role_id from cpop_auth where token="{token}" '''
+        cursor.execute(query)
+        results_list = []
+        for result in cursor:
+            results_list.append(result)
+        cursor.close()
+        cnx.commit()
+        cursor.close()
+        if(len(results_list)==0):
+           return "invalid token"
+        return str(results_list[-1][0])
+    except  Exception as e: 
+        print(e);
+        return "check syntax"
+ 
 
 
 @app.route('/signupPatient', methods= ['POST'])
