@@ -49,7 +49,7 @@ def parseIncl(inclusions, exclusions):
 	#cnx = make_connection()
 	#cursor = cnx.cursor()	
 
-	basequery = '''SELECT cp.pat_id FROM cpop_patients cp, cpop_pat_info cpi, cpop_alcohol_lookup cal, cpop_race cr WHERE cp.pat_id = cpi.pat_id AND cp.race_id = cr.race_id AND cpi.alcohol_id = cal.alcohol_id'''
+	basequery = '''SELECT cp.pat_id FROM cpop_patients cp, cpop_pat_info cpi, cpop_alcohol_lookup cal, cpop_race cr, cpop_survey_responses csr WHERE cp.pat_id = cpi.pat_id AND cp.race_id = cr.race_id AND cpi.alcohol_id = cal.alcohol_id AND cp.pat_id = csr.pat_id'''
 	exclbaseq = ''+basequery
 	aliases = {
     	"age" : "cp.age",
@@ -69,6 +69,7 @@ def parseIncl(inclusions, exclusions):
 		basequery = (basequery+' AND '+inclusions).replace(';', ' AND ')
 	
 	if exclusions:
+		exclusions = exclusions+';cp.doc_id=0'
 		for field in aliases.keys():
 			exclusions = exclusions.replace(field, aliases[field])
 		exclbaseq = (exclbaseq+' AND '+exclusions).replace(';', 'AND')
