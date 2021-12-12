@@ -293,6 +293,7 @@ def parseIncl():
         cursor.execute(basequery)
     return_list = []
     for result in cursor:
+       return_list.append(result[0])
        print(result)
     cursor.close()
     return str(return_list) 
