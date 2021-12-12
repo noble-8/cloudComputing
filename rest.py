@@ -4,6 +4,9 @@ from flask import Flask
 from flask import request
 from flask import send_file
 import pymysql
+from datetime import datetime 
+from datetime import timedelta
+
 endpoint = 'wed8.c34yxqfbf9wx.us-east-2.rds.amazonaws.com'
 port = '3306'
 dbuser = 'admin'
@@ -28,20 +31,6 @@ table = 'cpop_auth'
 @app.route('/')
 def home():
 	return "hello world" 
-
-@app.route('/list')
-def list():
-	cnx = make_connection()
-	cursor = cnx.cursor()
-	print(table)
-	query = f'select * from {table}'
-	cursor.execute(query)
-	results_list = []
-	for result in cursor:
-		results_list.append(result)
-		print(results_list)
-	cursor.close()
-	return json.dumps(results_list)
 
 @app.route('/get/<name>')
 def get_by_name(name):
@@ -165,12 +154,42 @@ def createStudy():
                 cnx = make_connection()
                 cursor = cnx.cursor();
                 #insert into cpop_pat_info values(1, "Bachelor's Degree", 4, 2, 1, 0, 1, 0, 1);
-                query = f''' INSERT INTO cpop_pat_info VALUES ({study_id}, {doc_id},\"{study_name}\",\"{inclusion}\",\"{exclusion}\")''';
+                query = f''' INSERT INTO cpop_studies VALUES ({study_id}, {doc_id},\"{study_name}\",\"{inclusion}\",\"{exclusion}\")''';
                 print(query)
                 cursor.execute(query)
                 cnx.commit()
                 cursor.close()
                 return "{msg:entered successfully}"
+        except  Exception as e:
+                return e
+
+@app.route('/createOperation', methods= ['POST'])
+def createOperation():
+        body = request.get_json()
+        doc_id , pat_id , operation_date = body['doc_id'],body['pat_id'],body['operation_date']
+        op = datetime.strptime(operation_date, '%Y-%m-%d %H:%M:%S')
+        pre_op = op + timedelta(days=-1)
+        post_op = op + timedelta(days=1)
+        op_3= op + timedelta(days=90)
+        op_6= op + timedelta(days=180)
+        print(pre_op)
+        print(post_op)
+        print(op_3)
+        print(op_6)
+        try:
+                cnx = make_connection()
+                cursor = cnx.cursor();
+                query = f''' INSERT INTO cpop_operations VALUES (0,{doc_id},{pat_id},{operation_date})''';
+                print(query)
+                cursor.execute(query)
+                query = f'''select operation_id from cpop_doctors where doc_id="{doc_id}" and pat_id={pat_id} and operation_date={operation_date}'''
+                        cursor.execute(query)
+                        results_list = []
+                        for result in cursor:
+                		    results_list.append(result)
+                cnx.commit()
+                cursor.close()
+                return results_list 
         except  Exception as e:
                 return e
 
