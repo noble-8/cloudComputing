@@ -172,24 +172,27 @@ def createOperation():
         post_op = op + timedelta(days=1)
         op_3= op + timedelta(days=90)
         op_6= op + timedelta(days=180)
-        print(pre_op)
-        print(post_op)
-        print(op_3)
-        print(op_6)
         try:
                 cnx = make_connection()
                 cursor = cnx.cursor();
-                query = f''' INSERT INTO cpop_operations VALUES (0,{doc_id},{pat_id},{operation_date})''';
-                print(query)
+                query = f''' INSERT INTO cpop_operations VALUES (0,{doc_id},{pat_id},"{operation_date}")''';
                 cursor.execute(query)
-                query = f'''select operation_id from cpop_doctors where doc_id="{doc_id}" and pat_id={pat_id} and operation_date={operation_date}'''
-                        cursor.execute(query)
-                        results_list = []
-                        for result in cursor:
-                            results_list.append(result)
+                query = f'''select operation_id from cpop_operations where doc_id="{doc_id}" and pat_id={pat_id} and operation_date="{operation_date}"'''
+                cursor.execute(query)
+                results_list = []
+                for result in cursor:
+                    results_list.append(result)
+                op_id = (results_list[-1])[0]
+                query = f''' insert into cpop_survey_dates values (0,{op_id},{pat_id},"{pre_op}","{post_op}","{op_3}","{op_6}") ;'''
+                cursor.execute(query)
+                query = f'''select csd_id from  cpop_survey_dates'''
+                cursor.execute(query)
+                results_list = []
+                for result in cursor:
+                    results_list.append(result)
                 cnx.commit()
                 cursor.close()
-                return results_list 
+                return str(results_list[-1][0])
         except  Exception as e:
                 return e
 
