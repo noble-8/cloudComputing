@@ -136,6 +136,25 @@ def patInfo():
 		print(e);
 		return "check syntax"
 
+@app.route('/postSurvey', methods= ['POST'])
+def postSurvey():
+	#Id, name, age, gender, race = request.args['id'], request.args['name'], request.args['age'], request.args['gender'], request.args['race']
+	body = request.get_json( )
+	response_id , pat_id , study_id , response_date , response_code , Need_to_blow_your_nose , Nasal_Blockage , Sneezing , Runny_Nose , Cough , Post_nasal_discharge , Thick_nasal_discharge , Ear_fullness , Dizziness , Ear_pain , Facial_pain_pressure , Decreased_Sense_of_Smell_Taste , Difficulty_falling_asleep , Wake_up_at_night , Lack_of_a_good_nights_sleep , Wake_up_tired , Fatigue , Reduced_Productivity , Reduced_Concentration , Frustrated_restless_irritable , Sad , Embarassed  = body['response_id'],body['pat_id'],body['study_id'],body['response_date'],body['response_code'],body['Need_to_blow_your_nose'],body['Nasal_Blockage'],body['Sneezing'],body['Runny_Nose'],body['Cough'],body['Post_nasal_discharge'],body['Thick_nasal_discharge'],body['Ear_fullness'],body['Dizziness'],body['Ear_pain'],body['Facial_pain_pressure'],body['Decreased_Sense_of_Smell_Taste'],body['Difficulty_falling_asleep'],body['Wake_up_at_night'],body['Lack_of_a_good_nights_sleep'],body['Wake_up_tired'],body['Fatigue'],body['Reduced_Productivity'],body['Reduced_Concentration'],body['Frustrated_restless_irritable'],body['Sad'],body['Embarassed']
+	try:
+		cnx = make_connection()
+		cursor = cnx.cursor();
+		query = f''' INSERT INTO cpop_survey_responses VALUES ({response_id},{pat_id},{study_id},"{response_date}","{response_code}",{Need_to_blow_your_nose},{Nasal_Blockage},{Sneezing},{Runny_Nose},{Cough},{Post_nasal_discharge},{Thick_nasal_discharge},{Ear_fullness},{Dizziness},{Ear_pain},{Facial_pain_pressure},{Decreased_Sense_of_Smell_Taste},{Difficulty_falling_asleep},{Wake_up_at_night},{Lack_of_a_good_nights_sleep},{Wake_up_tired},{Fatigue},{Reduced_Productivity},{Reduced_Concentration},{Frustrated_restless_irritable},{Sad},{Embarassed} )''';
+		print(query)
+		cursor.execute(query)
+		cnx.commit()
+		cursor.close()
+		return "{msg:entered successfully}"
+	except  Exception as e: 
+		print(e);
+		return "check syntax"
+
+
 
 def genemails():
     cnx = make_connection()
