@@ -245,8 +245,45 @@ def createOperation():
                 return str(results_list[-1][0])
         except  Exception as e:
                 return e
+@app.route('/paitlist', methods= ['POST'])
+def parseIncl(inclusions, exclusions):
+        
+    #cnx = make_connection()
+    #cursor = cnx.cursor()  
 
-
+    basequery = '''SELECT cp.pat_id FROM cpop_patients cp, cpop_pat_info cpi, cpop_alcohol_lookup cal, cpop_race cr, cpop_survey_responses csr WHERE cp.pat_id = cpi.pat_id AND cp.race_id = cr.race_id AND cpi.alcohol_id = cal.alcohol_id AND cp.pat_id = csr.pat_id'''
+    exclbaseq = ''+basequery
+    aliases = { 
+        "age" : "cp.age",
+        "gender" : "cp.gender",
+        "race" : "cr.race",
+        "cigarettes" : "cpi.cigarettes",
+        "alcohol" : "cal.answer",
+        "asthma" : "cpi.asthma",
+        "diabetes" : "cpi.diabetes",
+        "allergic rhinitis": "cpi.allergic_rhinitis",
+        "aspirin sensitivity" : "cpi.aspirin_sensitivity",
+        "depression": "cpi.depression"
+    }   
+    if inclusions:
+        for field in aliases.keys():
+            inclusions = inclusions.replace(field, aliases[field])
+        basequery = (basequery+' AND '+inclusions).replace(';', ' AND ')
+        
+    if exclusions:
+        exclusions = exclusions+';cp.doc_id=0'
+        for field in aliases.keys():
+            exclusions = exclusions.replace(field, aliases[field])
+        exclbaseq = (exclbaseq+' AND '+exclusions).replace(';', 'AND')
+        
+    if(exclusions):
+        cursor.execute(basequery+' AND cp.pat_id NOT IN (' + exclbaseq+' )' )
+    else:
+        cursor.execute(basequery)
+    for result in cursor:
+       print(result)
+    cursor.close()
+    return str(result) 
 
 
 def genemails():
