@@ -137,6 +137,28 @@ def patInfo():
 		return "check syntax"
 
 
+@app.route('/createStudy', methods= ['POST'])
+def patInfo():
+        #Id, name, age, gender, race = request.args['id'], request.args['name'], request.args['age'], request.args['gender'], request.args['race']
+        body = request.get_json( )
+        study_id , doc_id , study_name , inclusion , exclusion = body['study_id'],body['doc_id'],body['study_name'],body['inclusion'],body['exclusion']
+        try:
+                cnx = make_connection()
+                cursor = cnx.cursor();
+                #insert into cpop_pat_info values(1, "Bachelor's Degree", 4, 2, 1, 0, 1, 0, 1);
+                query = f''' INSERT INTO cpop_pat_info VALUES ({study_id}, {doc_id},"{study_name}","{inclusion}","{exclusion}")''';
+                print(query)
+                cursor.execute(query)
+                cnx.commit()
+                cursor.close()
+                return "{msg:entered successfully}"
+        except  Exception as e:
+                print(e);
+                return "check syntax"
+
+
+
+
 def genemails():
     cnx = make_connection()
     cursor = cnx.cursor()
