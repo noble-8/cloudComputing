@@ -245,12 +245,23 @@ def createOperation():
                 return str(results_list[-1][0])
         except  Exception as e:
                 return e
-@app.route('/paitlist', methods= ['POST'])
-def parseIncl(inclusions, exclusions):
-        
-    #cnx = make_connection()
-    #cursor = cnx.cursor()  
-
+@app.route('/list' , methods = ['POST'] )
+#def parseIncl(inclusions, exclusions):
+def parseIncl():
+    body = request.get_json()
+    study_id  = body['study_id']
+    cnx = make_connection()
+    cursor = cnx.cursor();
+    query = f''' select inclusion, exclusion from cpop_studies where study_id="{study_id}" '''
+    cursor.execute(query)
+    results_list = []
+    for result in cursor:
+        results_list.append(result)
+    cnx.commit()
+    #print(results_list[0])
+    #print(results_list[1])
+    inclusions = results_list[0][0]
+    exclusions = results_list[0][1]
     basequery = '''SELECT cp.pat_id FROM cpop_patients cp, cpop_pat_info cpi, cpop_alcohol_lookup cal, cpop_race cr, cpop_survey_responses csr WHERE cp.pat_id = cpi.pat_id AND cp.race_id = cr.race_id AND cpi.alcohol_id = cal.alcohol_id AND cp.pat_id = csr.pat_id'''
     exclbaseq = ''+basequery
     aliases = { 
@@ -280,11 +291,11 @@ def parseIncl(inclusions, exclusions):
         cursor.execute(basequery+' AND cp.pat_id NOT IN (' + exclbaseq+' )' )
     else:
         cursor.execute(basequery)
+    return_list = []
     for result in cursor:
        print(result)
     cursor.close()
-    return str(result) 
-
+    return str(return_list) 
 
 def genemails():
     cnx = make_connection()
