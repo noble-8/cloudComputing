@@ -249,6 +249,7 @@ def createOperation():
 #def parseIncl(inclusions, exclusions):
 def parseIncl():
     body = request.get_json()
+    print(type(body))
     study_id  = body['study_id']
     cnx = make_connection()
     cursor = cnx.cursor();
@@ -262,7 +263,7 @@ def parseIncl():
     #print(results_list[1])
     inclusions = results_list[0][0]
     exclusions = results_list[0][1]
-    basequery = '''SELECT cp.pat_id FROM cpop_patients cp, cpop_pat_info cpi, cpop_alcohol_lookup cal, cpop_race cr, cpop_survey_responses csr WHERE cp.pat_id = cpi.pat_id AND cp.race_id = cr.race_id AND cpi.alcohol_id = cal.alcohol_id AND cp.pat_id = csr.pat_id'''
+    basequery = '''SELECT DISTINCT cp.pat_id FROM cpop_patients cp, cpop_pat_info cpi, cpop_alcohol_lookup cal, cpop_race cr, cpop_survey_responses csr WHERE cp.pat_id = cpi.pat_id AND cp.race_id = cr.race_id AND cpi.alcohol_id = cal.alcohol_id AND cp.pat_id = csr.pat_id'''
     exclbaseq = ''+basequery
     aliases = { 
         "age" : "cp.age",
@@ -285,9 +286,11 @@ def parseIncl():
         exclusions = exclusions+';cp.doc_id=0'
         for field in aliases.keys():
             exclusions = exclusions.replace(field, aliases[field])
-        exclbaseq = (exclbaseq+' AND '+exclusions).replace(';', 'AND')
+        exclbaseq = (exclbaseq+' AND '+exclusions).replace(';', ' AND ')
         
     if(exclusions):
+
+        print(basequery+' AND cp.pat_id NOT IN (' + exclbaseq+' )')
         cursor.execute(basequery+' AND cp.pat_id NOT IN (' + exclbaseq+' )' )
     else:
         cursor.execute(basequery)
